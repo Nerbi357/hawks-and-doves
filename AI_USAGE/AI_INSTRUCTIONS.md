@@ -84,6 +84,15 @@ silently shapes the whole project.
 **Concretise abstractions.** If a request can be read two ways, say both readings
 back and ask which one is meant. Do not pick the more convenient one.
 
+**The parallel learning channel.** The owner studies the project's subject matter
+alongside the build, in a *separate* chat that cannot see the repository. When
+asked for material for it, write short, self-contained prompts — one idea each,
+in the owner's language, each producing an explanation rather than code — and keep
+them in `AI_USAGE/LEARNING_PROMPTS.md`, ordered as a learning path and grouped
+into batches. Two rules keep them useful: never assume the other chat knows
+anything about this project, and write the prompt so that its answer is checkable
+against something real (a number, an episode, a source), not just plausible.
+
 ## 3. Decision rights — what you decide, what you ask
 
 **You decide alone** (and mention it afterwards): names of functions and variables,
@@ -582,3 +591,8 @@ Your approval?
   tabs, the About panel, a release) and with "look one step wider than the
   question" in §5a — the owner said that unrequested improvements adjacent to the
   current work were what improved both the project and the collaboration most.
+- **2026-07-27 — the parallel learning channel.** Added the rule in §2 covering
+  the separate chat in which the owner studies the subject matter while the build
+  proceeds, and the file that holds those prompts. Added on the first day of the
+  second project, when the owner asked for thesis-style prompts to be produced
+  alongside the work.
