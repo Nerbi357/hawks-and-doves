@@ -101,6 +101,21 @@ A hawkish surprise can raise or lower long yields depending on whether it reads 
   prices.
 - `[?]` **S-f. Sidestep it** — predict the magnitude of the move rather than its
   direction. Volatility is far more predictable than sign, and under-studied here.
+- `[>>]` **S-g. Predict the sign flip itself, from the text.** Sharper than S-e and
+  it subsumes it. Jarociński–Karadi and Bauer–Swanson already label each historical
+  event as a *monetary* shock or an *information* shock — free, published,
+  event-level data. So instead of treating the information effect as a nuisance to
+  be identified out of market data, **ask whether the statement text, known before
+  the market reacts, predicts which regime the event will fall into.** That
+  inverts the entire literature, produces a new object, and is directly tradable.
+  Nothing in the survey does this. Build S-e as the mechanism and S-g as the claim.
+- `[>]` **S-h.** A second, independent reason to expect the flip, now testable:
+  Cieslak–Schrimpf find non-monetary news dominates the **press-conference**
+  window while the decision itself is mostly monetary news, and Acosta et al.
+  (2025) find press conferences are now the *main* source of policy news. So the
+  hypothesis is that **the prepared statement carries the policy signal and the
+  press conference carries the information signal.** The FRBSF event-study
+  database separates those windows, so this is directly testable.
 
 ## 1.5 Regimes
 
@@ -113,7 +128,42 @@ splits defined by policy state (at the ZLB or not, hiking or cutting) rather tha
 by calendar. Calendar splits chosen after seeing the results are a form of
 snooping, and a referee will say so.
 
-## 1.6 Notebooks, reproducibility, and where the logic lives
+## 1.6 Start immediately — these cannot be done retroactively
+
+- `[>>]` **Time-stamped forward forecasts.** From today onward, record a dated,
+  committed prediction before every FOMC meeting. This is the *only* fully airtight
+  answer to hindsight contamination: every meeting from now on is genuinely clean
+  out-of-sample, and no backtest can match it. It costs almost nothing, it cannot
+  be reconstructed later, and by the time the project is written up it is a real
+  out-of-sample panel. **Set this up in E0, before anything else is modelled.**
+- `[>]` **Snapshot the sources now.** Central bank sites have been redesigned
+  repeatedly; archives disappear quietly. Collect and commit the raw text early
+  even if the modelling is months away.
+
+## 1.7 Cheapest features with the best odds
+
+Roughly a day's work, and they give a working baseline plus the three features
+most likely to survive, before any modelling investment:
+
+1. `FOMC-RoBERTa` sentence scores;
+2. **standing-language deletion diffs** — a `difflib` detector of phrases dropped
+   relative to the previous statement, weighted by how long each had persisted.
+   This is literally what practitioners watch ("considerable time", "patient"),
+   there is no verified literature on it, and it is a few dozen lines;
+3. cosine novelty against the previous statement.
+
+## 1.8 Two rules that come from the sample size
+
+- `[!]` **Multi-seed error bars, always.** At N≈260 the seed-to-seed spread will
+  routinely exceed the gap between methods. A single-seed results table is the
+  single most likely thing to sink the project. Trillion Dollar Words ships three
+  seeds with separate splits — copy that protocol exactly.
+- `[>]` **Method ordering by reliability at this N:** frozen strong embeddings plus
+  a ridge head first (near-zero cost, hard to beat, the right baseline), then
+  SetFit at sentence level, then LoRA on the last layers, and only then full
+  fine-tuning — reported with error bars or not at all.
+
+## 1.9 Notebooks, reproducibility, and where the logic lives
 
 `[x]` The repository is a **chain of checkpoints**: after every meaningful step,
 the owner must be able to reproduce the result from the notebooks and the
@@ -141,6 +191,27 @@ up on its own. None blocks another.
   task-mismatch, kept to show that domain-task alignment matters), zero-shot NLI.
 - `[?]` Fine-tuned DeBERTa-v3 on the labelled sets; **ordinal rather than
   three-class**, since hawk-dove is a continuum.
+- `[>>]` **Pairwise Bradley–Terry scaling — the strongest novelty claim available.**
+  Nobody can give a reliable *absolute* hawkishness label, but anyone can reliably
+  answer "is A more hawkish than B?" — and 260 documents yield ~33,000 candidate
+  pairs. We are annotation-budget-starved, not label-starved. A siamese encoder
+  trained with a Bradley–Terry / RankNet loss yields a scalar hawk-dove scale
+  identified up to an affine transform, which is fine because it is standardised
+  before regression. The survey found **no verified paper applying CORAL/CORN or
+  Bradley–Terry to hawk-dove scaling**. It is also formally identical to an RLHF
+  reward model, which makes it legible to any modern referee. Tools exist:
+  `choix`, `coral-pytorch`, sentence-transformers with `CoSENTLoss`.
+- `[>]` **Inherently interpretable architecture instead of post-hoc attribution.**
+  A shared sentence encoder with learned **non-negative aggregation weights**, then
+  regress yields on the document score. Post-hoc attribution only tells you what
+  drove *the model's score*, not what moved *the market*; this design makes the
+  weights structurally part of the model, sidesteps the whole attention-faithfulness
+  argument, and at N≈260 the constraint doubles as strong regularisation. Should be
+  the default for the attribution viewer.
+- `[-]` **Another LLM-versus-FinBERT annotation benchmark.** Crowded, and BIS
+  WP 1215 finds domain-retrained encoders beating frontier LLMs at FOMC stance
+  anyway. Also `[-]` a multi-agent FOMC simulator — four groups are already there
+  and the reported accuracies are almost certainly contaminated.
 - `[?]` LLM as annotator over the full corpus, distilled into a small model. The
   comparison of its labels against the human ones is a publishable result itself.
 - `[?]` Contrastive/siamese model on `(previous statement, current statement)`

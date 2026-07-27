@@ -56,6 +56,12 @@ of it being thrown away later.
 to end and produces an empty but correctly-shaped store; the repository standards
 written down once so later epochs inherit them.
 
+**Also produces, and this one is time-sensitive.** A committed, dated forecast
+record, started **before the next FOMC meeting**. Every meeting from that point on
+is genuinely clean out-of-sample — the only airtight answer to hindsight
+contamination, and the only part of this project that cannot be reconstructed
+later. It costs almost nothing and it is lost forever if it starts late.
+
 **Deliberately not here.** Any modelling, any data.
 
 ---
